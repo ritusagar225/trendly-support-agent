@@ -1,67 +1,54 @@
-Trendly Support Agent
+# Trendly Support Agent
 
-An AI-powered customer support agent for Trendly using Gemini function calling and deterministic Python business logic.
+> An AI-powered customer support agent for Trendly using Gemini function calling and deterministic Python business logic.
 
-Overview
+---
 
-The Trendly Support Agent is an AI-powered customer support system designed to handle common e-commerce support requests.
+## Overview
 
-It combines Google Gemini for natural-language understanding and tool selection with deterministic Python business logic for important customer-support decisions.
+The **Trendly Support Agent** is an AI-powered customer support system designed to handle common e-commerce support requests.
+
+It combines **Google Gemini** for natural-language understanding and tool selection with **deterministic Python business logic** for important customer-support decisions.
 
 The agent can handle:
 
-Orders
-
-Shipping
-
-Returns
-
-Exchanges
-
-Refunds
-
-Damaged or wrong items
-
-Lost parcels
-
-Human-support escalation
+- Orders
+- Shipping
+- Returns
+- Exchanges
+- Refunds
+- Damaged or wrong items
+- Lost parcels
+- Human-support escalation
 
 Gemini is responsible for understanding customer intent, selecting the appropriate tool, and generating the final response.
 
 Python handles the actual business rules and decisions. This prevents the LLM from independently inventing eligibility, refund, or policy decisions.
 
-Key Features
+---
 
-🤖 Gemini-powered customer support
+## Key Features
 
-🔧 Function/tool calling
+- 🤖 Gemini-powered customer support
+- 🔧 Function/tool calling
+- 📦 Order lookup
+- 📖 Policy search
+- ↩️ Return eligibility checking
+- 🔄 Exchange eligibility checking
+- 👤 Human-support escalation
+- 📅 Deterministic date calculations
+- 🛡️ Policy guardrails
+- 🚚 Lost-parcel handling
+- ⚠️ Damaged/wrong-item handling
+- 🚨 API error handling
+- 🧪 Automated testing
+- ✅ 14/14 business-logic tests passing
 
-📦 Order lookup
+---
 
-📖 Policy search
+## Architecture
 
-↩️ Return eligibility checking
-
-🔄 Exchange eligibility checking
-
-👤 Human-support escalation
-
-📅 Deterministic date calculations
-
-🛡️ Policy guardrails
-
-🚚 Lost-parcel handling
-
-⚠️ Damaged/wrong-item handling
-
-🚨 API error handling
-
-🧪 Automated testing
-
-✅ 14/14 business-logic tests passing
-
-Architecture
-
+```text
                          Customer
                             |
                             v
@@ -93,11 +80,13 @@ Architecture
                                              v
                                      Human Escalation
                                       when required
+```
 
-Architecture Principle
+### Architecture Principle
 
-The system separates natural-language reasoning from deterministic business logic.
+The system separates **natural-language reasoning** from **deterministic business logic**.
 
+```text
 Gemini
   |
   | Understand request
@@ -117,47 +106,56 @@ Gemini
   | Generate response
   v
 Customer
+```
 
-How It Works
+---
+
+## How It Works
 
 The Trendly Support Agent follows a tool-based workflow where Gemini handles natural-language understanding and Python tools handle deterministic business decisions.
 
-1. Customer Sends a Request
+### 1. Customer Sends a Request
 
+```text
 Customer:
 Can I return TR-4530?
+```
 
-2. Gemini Understands the Intent
+### 2. Gemini Understands the Intent
 
 Gemini analyzes the request and determines what information or action is required.
 
 For a return request, the agent identifies that it needs to:
 
-Retrieve the order
+1. Retrieve the order
+2. Check return eligibility
 
-Check return eligibility
-
-3. Gemini Selects the Appropriate Tool
+### 3. Gemini Selects the Appropriate Tool
 
 The agent uses function calling to select the required Python tool.
 
+```text
 get_order()
      ↓
 check_return_eligibility()
+```
 
 The LLM is responsible for selecting the tool, but it does not make the final eligibility decision.
 
-4. Python Tool Executes the Business Logic
+### 4. Python Tool Executes the Business Logic
 
 The selected tool receives the required arguments and applies Trendly's business rules.
 
+```python
 check_return_eligibility(
     order_id="TR-4530",
     current_date="2026-08-24"
 )
+```
 
 The tool checks conditions such as:
 
+```text
 Order exists?
      ↓
 Delivered?
@@ -171,11 +169,13 @@ Final sale?
 Cancelled?
      ↓
 Return decision
+```
 
-5. Tool Returns a Structured Result
+### 5. Tool Returns a Structured Result
 
 The Python function returns a structured response instead of free-form text.
 
+```json
 {
   "eligible": true,
   "action": "return_eligible",
@@ -183,32 +183,40 @@ The Python function returns a structured response instead of free-form text.
   "delivered_date": "2026-07-26",
   "days_since_delivery": 29
 }
+```
 
-6. Result Is Passed Back to Gemini
+### 6. Result Is Passed Back to Gemini
 
+```text
 Tool Result
      ↓
 Gemini
      ↓
 Customer-Friendly Response
+```
 
 Gemini uses the verified result to construct the final response.
 
-7. Customer Receives the Final Response
+### 7. Customer Receives the Final Response
 
+```text
 Trendly Agent:
 
 Yes, your order TR-4530 is eligible for a return.
 
 It was delivered on July 26, 2026, which is within
 Trendly's 30-calendar-day return window.
+```
 
-Human Escalation Flow
+---
+
+## Human Escalation Flow
 
 Some situations cannot be resolved automatically.
 
 For example, a lost parcel requires human support.
 
+```text
 Customer
    |
    v
@@ -234,9 +242,11 @@ Case ID returned
    |
    v
 Gemini informs the customer
+```
 
 Example escalation result:
 
+```json
 {
   "status": "escalated",
   "case_id": "CASE-602D1914",
@@ -244,51 +254,45 @@ Example escalation result:
   "order_id": "TR-4526",
   "assigned_to": "human_support"
 }
+```
 
-Why Use Tools?
+---
 
-The agent separates conversation from business logic.
+## Why Use Tools?
 
-Gemini Handles
+The agent separates **conversation** from **business logic**.
 
-Understanding customer requests
+### Gemini Handles
 
-Identifying intent
+- Understanding customer requests
+- Identifying intent
+- Selecting tools
+- Generating customer-friendly responses
 
-Selecting tools
+### Python Handles
 
-Generating customer-friendly responses
-
-Python Handles
-
-Order lookup
-
-Policy rules
-
-Return eligibility
-
-Exchange eligibility
-
-Date calculations
-
-Human escalation
+- Order lookup
+- Policy rules
+- Return eligibility
+- Exchange eligibility
+- Date calculations
+- Human escalation
 
 This prevents the LLM from independently deciding important business outcomes.
 
 The result is a system that is:
 
-More reliable
+- More reliable
+- Easier to test
+- Easier to debug
+- Easier to extend
+- Less dependent on LLM-generated business decisions
 
-Easier to test
+---
 
-Easier to debug
+## Project Structure
 
-Easier to extend
-
-Less dependent on LLM-generated business decisions
-
-Project Structure
-
+```text
 trendly-support-agent/
 │
 ├── app/
@@ -320,187 +324,136 @@ trendly-support-agent/
 ├── .gitignore
 ├── pytest.ini
 └── README.md
+```
 
-Main Components
+### Main Components
 
-Component
+| Component                 | Purpose                                                   |
+| ------------------------- | --------------------------------------------------------- |
+| `app/agent.py`            | Main Gemini agent and tool-calling workflow               |
+| `app/tools/orders.py`     | Order lookup                                              |
+| `app/tools/policy.py`     | Trendly policy search                                     |
+| `app/tools/returns.py`    | Return eligibility                                        |
+| `app/tools/exchanges.py`  | Exchange eligibility                                      |
+| `app/tools/escalation.py` | Human-support escalation                                  |
+| `app/guardrails/`         | Agent safety and behavior controls                        |
+| `app/prompts/`            | Agent prompt components                                   |
+| `data/orders.json`        | Order data                                                |
+| `data/trendly_policy.md`  | Trendly policy source                                     |
+| `tests/`                  | Automated business-logic tests                            |
+| `.env.example`            | Environment-variable template                             |
+| `.gitignore`              | Prevents secrets and generated files from being committed |
+| `pytest.ini`              | Pytest configuration                                      |
 
-Purpose
+---
 
-app/agent.py
+## Tools and Components
 
-Main Gemini agent and tool-calling workflow
+### `get_order()`
 
-app/tools/orders.py
-
-Order lookup
-
-app/tools/policy.py
-
-Trendly policy search
-
-app/tools/returns.py
-
-Return eligibility
-
-app/tools/exchanges.py
-
-Exchange eligibility
-
-app/tools/escalation.py
-
-Human-support escalation
-
-app/guardrails/
-
-Agent safety and behavior controls
-
-app/prompts/
-
-Agent prompt components
-
-data/orders.json
-
-Order data
-
-data/trendly_policy.md
-
-Trendly policy source
-
-tests/
-
-Automated business-logic tests
-
-.env.example
-
-Environment-variable template
-
-.gitignore
-
-Prevents secrets and generated files from being committed
-
-pytest.ini
-
-Pytest configuration
-
-Tools and Components
-
-get_order()
-
-File: app/tools/orders.py
+**File:** `app/tools/orders.py`
 
 Retrieves order information using an order ID.
 
 Used for questions involving:
 
-Order status
+- Order status
+- Items
+- Delivery information
+- Carrier
+- Tracking information
 
-Items
+### `search_policy()`
 
-Delivery information
-
-Carrier
-
-Tracking information
-
-search_policy()
-
-File: app/tools/policy.py
+**File:** `app/tools/policy.py`
 
 Searches the Trendly policy stored in:
 
+```text
 data/trendly_policy.md
+```
 
 Used for questions about:
 
-Shipping
-
-Returns
-
-Refunds
-
-Damaged or wrong items
-
-Lost parcels
-
-Address changes
+- Shipping
+- Returns
+- Refunds
+- Damaged or wrong items
+- Lost parcels
+- Address changes
 
 If the policy does not cover a question, the agent does not invent an answer.
 
-check_return_eligibility()
+### `check_return_eligibility()`
 
-File: app/tools/returns.py
+**File:** `app/tools/returns.py`
 
 Determines whether an order is eligible for a return.
 
 The tool checks:
 
-Delivery date
-
-30-day return window
-
-Non-returnable categories
-
-Final-sale status
-
-Cancelled orders
-
-Lost parcels
+- Delivery date
+- 30-day return window
+- Non-returnable categories
+- Final-sale status
+- Cancelled orders
+- Lost parcels
 
 Example:
 
+```python
 check_return_eligibility(
     order_id="TR-4530",
     current_date="2026-08-24"
 )
+```
 
 Example result:
 
+```json
 {
   "eligible": true,
   "action": "return_eligible",
   "order_id": "TR-4530",
   "days_since_delivery": 29
 }
+```
 
-check_exchange_eligibility()
+### `check_exchange_eligibility()`
 
-File: app/tools/exchanges.py
+**File:** `app/tools/exchanges.py`
 
 Determines whether an item is eligible for a size exchange.
 
 The tool checks:
 
-30-day exchange window
-
-Requested size
-
-Size availability
-
-Previous exchange count
-
-Cancelled orders
-
-Lost parcels
-
-Missing requested size
+- 30-day exchange window
+- Requested size
+- Size availability
+- Previous exchange count
+- Cancelled orders
+- Lost parcels
+- Missing requested size
 
 Possible outcomes:
 
+```text
 exchange_eligible
 refund
 escalate
 not_eligible
 clarification_needed
+```
 
-escalate_to_human()
+### `escalate_to_human()`
 
-File: app/tools/escalation.py
+**File:** `app/tools/escalation.py`
 
 Creates a human-support case when a request requires human intervention.
 
 Example result:
 
+```json
 {
   "status": "escalated",
   "case_id": "CASE-XXXXXXXX",
@@ -508,105 +461,75 @@ Example result:
   "order_id": "TR-4526",
   "assigned_to": "human_support"
 }
+```
 
-Policy and Business Rules
+---
+
+## Policy and Business Rules
 
 The agent follows the rules defined in:
 
+```text
 data/trendly_policy.md
+```
 
-Returns
+### Returns
 
-Items can be returned within 30 calendar days of the delivery date.
+- Items can be returned within 30 calendar days of the delivery date.
+- Items must be unworn and unwashed.
+- Original tags must be attached.
+- Original packaging must be included where provided.
+- Innerwear and socks are non-returnable.
+- Jewellery is non-returnable.
+- Beauty and fragrance products are non-returnable.
+- Face masks are non-returnable.
+- Gift cards are non-returnable.
+- Final-sale items are eligible for size exchange only.
+- Cancelled orders cannot have a return raised.
 
-Items must be unworn and unwashed.
+### Refunds
 
-Original tags must be attached.
-
-Original packaging must be included where provided.
-
-Innerwear and socks are non-returnable.
-
-Jewellery is non-returnable.
-
-Beauty and fragrance products are non-returnable.
-
-Face masks are non-returnable.
-
-Gift cards are non-returnable.
-
-Final-sale items are eligible for size exchange only.
-
-Cancelled orders cannot have a return raised.
-
-Refunds
-
-Payment Method
-
-Refund Destination
-
-Processing Time
-
-Credit / Debit Card
-
-Original card
-
-5–7 business days
-
-UPI
-
-Original UPI ID
-
-3–5 business days
-
-Cash on Delivery
-
-Bank transfer or store credit
-
-7–10 business days
-
-Store Credit
-
-Store credit
-
-Immediate
+| Payment Method      | Refund Destination            | Processing Time    |
+| ------------------- | ----------------------------- | ------------------ |
+| Credit / Debit Card | Original card                 | 5–7 business days  |
+| UPI                 | Original UPI ID               | 3–5 business days  |
+| Cash on Delivery    | Bank transfer or store credit | 7–10 business days |
+| Store Credit        | Store credit                  | Immediate          |
 
 The assistant must not collect sensitive bank information through chat.
 
-Exchanges
+### Exchanges
 
-Exchanges are for size changes.
+- Exchanges are for size changes.
+- The same 30-day window applies.
+- A second exchange requires human approval.
+- If the requested size is unavailable, the exchange becomes a refund.
 
-The same 30-day window applies.
-
-A second exchange requires human approval.
-
-If the requested size is unavailable, the exchange becomes a refund.
-
-Damaged or Wrong Items
+### Damaged or Wrong Items
 
 Damaged, defective, or incorrect items must be reported within 48 hours of delivery with photographs.
 
 The customer can choose:
 
-Free replacement
+1. Free replacement
+2. Full refund including shipping
 
-Full refund including shipping
-
-Lost Parcels
+### Lost Parcels
 
 Lost parcels are handled as human-support cases.
 
 The resolution can be:
 
-Free replacement
+- Free replacement
+- Full refund
 
-Full refund
+---
 
-Example Scenarios
+## Example Scenarios
 
-Valid Return
+### Valid Return
 
+```text
 Customer:
 Can I return TR-4530?
 
@@ -615,9 +538,11 @@ Yes, your order TR-4530 is eligible for a return.
 
 It was delivered on July 26, 2026, which is within Trendly's
 30-calendar-day return window.
+```
 
-Non-Returnable Jewellery
+### Non-Returnable Jewellery
 
+```text
 Customer:
 Can I return TR-4527?
 
@@ -626,9 +551,11 @@ Order TR-4527 is not eligible for return.
 
 The Pearl Drop Earrings belong to the jewellery category,
 which is non-returnable under Trendly's policy.
+```
 
-Exchange Size Unavailable
+### Exchange Size Unavailable
 
+```text
 Customer:
 Can I exchange TR-4530 for size S?
 
@@ -636,9 +563,11 @@ Trendly Agent:
 Size S is currently unavailable.
 
 The exchange request will need to be converted to a refund.
+```
 
-Lost Parcel
+### Lost Parcel
 
+```text
 Customer:
 What should I do about TR-4526?
 
@@ -651,9 +580,11 @@ human support.
 I have escalated your case to our human support team.
 
 Case ID: CASE-XXXXXXXX
+```
 
-Damaged Jewellery
+### Damaged Jewellery
 
+```text
 Customer:
 My jewellery from TR-4527 arrived damaged. What can I do?
 
@@ -668,9 +599,11 @@ You can choose between:
 
 1. A free replacement
 2. A full refund including shipping
+```
 
-Unsupported Policy Question
+### Unsupported Policy Question
 
+```text
 Customer:
 Can I get a birthday discount?
 
@@ -678,360 +611,303 @@ Trendly Agent:
 Our available Trendly policy does not cover birthday discounts.
 
 A human support agent can assist with promotion or discount inquiries.
+```
 
-Error Handling
+---
+
+## Error Handling
 
 The agent handles common API and workflow failures.
 
-Gemini API Errors
+### Gemini API Errors
 
 The system can encounter:
 
-429 RESOURCE_EXHAUSTED — quota or rate limit exceeded
-
-503 UNAVAILABLE — model temporarily unavailable
-
-404 NOT_FOUND — configured model unavailable
+- `429 RESOURCE_EXHAUSTED` — quota or rate limit exceeded
+- `503 UNAVAILABLE` — model temporarily unavailable
+- `404 NOT_FOUND` — configured model unavailable
 
 These errors should be handled without exposing internal implementation details to customers.
 
-Tool Errors
+### Tool Errors
 
 Tools return structured results such as:
 
+```json
 {
   "eligible": false,
   "action": "not_eligible",
   "reason": "The 30-calendar-day return window has expired.",
   "order_id": "TR-4523"
 }
+```
 
-Human Escalation
+### Human Escalation
 
 Cases requiring human intervention are passed to the escalation tool.
 
 The agent should only tell the customer that an escalation was created after the tool successfully returns a case.
 
-Testing
+---
+
+## Testing
 
 The deterministic business logic is tested independently of Gemini.
 
-Test Coverage
+### Test Coverage
 
-Test Suite
+| Test Suite           |  Tests | Result               |
+| -------------------- | -----: | -------------------- |
+| Return eligibility   |      5 | ✅ Passing           |
+| Exchange eligibility |      7 | ✅ Passing           |
+| Human escalation     |      2 | ✅ Passing           |
+| **Total**            | **14** | **✅ 14/14 Passing** |
 
-Tests
-
-Result
-
-Return eligibility
-
-5
-
-✅ Passing
-
-Exchange eligibility
-
-7
-
-✅ Passing
-
-Human escalation
-
-2
-
-✅ Passing
-
-Total
-
-14
-
-✅ 14/14 Passing
-
-Run All Tests
+### Run All Tests
 
 From the project root:
 
+```powershell
 $env:PYTHONPATH = (Get-Location).Path
 pytest -v
+```
 
 Expected:
 
+```text
 14 passed
+```
 
-Return Tests
+### Return Tests
 
-tests/test_returns.py covers:
+`tests/test_returns.py` covers:
 
-Valid return
+- Valid return
+- Non-returnable jewellery
+- Expired return
+- Cancelled order
+- Final-sale item
 
-Non-returnable jewellery
+### Exchange Tests
 
-Expired return
+`tests/test_exchanges.py` covers:
 
-Cancelled order
+- Valid exchange
+- Unavailable size → refund
+- Second exchange → escalation
+- Expired exchange
+- Cancelled order
+- Lost parcel → escalation
+- Missing requested size
 
-Final-sale item
+### Escalation Tests
 
-Exchange Tests
+`tests/test_escalation.py` covers:
 
-tests/test_exchanges.py covers:
+- Lost-parcel escalation
+- Policy escalation
+- Case ID generation
+- Human-support assignment
 
-Valid exchange
+---
 
-Unavailable size → refund
+## Setup and Installation
 
-Second exchange → escalation
+### Requirements
 
-Expired exchange
+- Python 3.10+
+- Gemini API key
+- Internet connection
 
-Cancelled order
+### 1. Clone the Repository
 
-Lost parcel → escalation
-
-Missing requested size
-
-Escalation Tests
-
-tests/test_escalation.py covers:
-
-Lost-parcel escalation
-
-Policy escalation
-
-Case ID generation
-
-Human-support assignment
-
-Setup and Installation
-
-Requirements
-
-Python 3.10+
-
-Gemini API key
-
-Internet connection
-
-1. Clone the Repository
-
+```bash
 git clone https://github.com/ritusagar225/trendly-support-agent.git
 cd trendly-support-agent
+```
 
-2. Create a Virtual Environment
+### 2. Create a Virtual Environment
 
+```powershell
 python -m venv .venv
+```
 
-3. Activate the Virtual Environment
+### 3. Activate the Virtual Environment
 
+```powershell
 .venv\Scripts\Activate.ps1
+```
 
-4. Install Dependencies
+### 4. Install Dependencies
 
+```powershell
 pip install -r requirements.txt
+```
 
-If requirements.txt is not present:
+If `requirements.txt` is not present:
 
+```powershell
 pip install google-genai python-dotenv pytest
+```
 
-5. Configure the Gemini API Key
+### 5. Configure the Gemini API Key
 
-Create a .env file in the project root:
+Create a `.env` file in the project root:
 
+```env
 GEMINI_API_KEY=your_actual_gemini_api_key
+```
 
-The repository includes a safe .env.example file:
+The repository includes a safe `.env.example` file:
 
+```env
 GEMINI_API_KEY=your_gemini_api_key_here
+```
 
-Never commit the real .env file.
+> **Never commit the real `.env` file.**
 
-Running the Agent
+---
+
+## Running the Agent
 
 From the project root:
 
+```powershell
 python -m app.agent
+```
 
 The application will prompt:
 
+```text
 Customer:
+```
 
 Example:
 
+```text
 Customer: Can I return TR-4530?
+```
 
 The agent identifies the request, selects the required tools, executes the business logic, and generates the response.
 
-Security
+---
 
-API Key Protection
+## Security
 
-The Gemini API key is stored in .env.
+### API Key Protection
 
-The .gitignore excludes:
+The Gemini API key is stored in `.env`.
 
+The `.gitignore` excludes:
+
+```text
 .env
 .venv/
 __pycache__/
 .pytest_cache/
+```
 
-.env.example contains only a placeholder and is safe to commit.
+`.env.example` contains only a placeholder and is safe to commit.
 
-Sensitive Information
+### Sensitive Information
 
 The assistant must not collect sensitive financial information through chat, including:
 
-Bank account numbers
+- Bank account numbers
+- Card numbers
+- CVV
+- Passwords
 
-Card numbers
+---
 
-CVV
+## Design Principles
 
-Passwords
-
-Design Principles
-
-Deterministic Business Logic
+### Deterministic Business Logic
 
 Critical business decisions are implemented in Python rather than delegated entirely to the LLM.
 
-Tool-Based Actions
+### Tool-Based Actions
 
 Gemini selects tools instead of directly manipulating business data.
 
-Policy Grounding
+### Policy Grounding
 
 Policy questions are answered using the provided Trendly policy.
 
-Human-in-the-Loop
+### Human-in-the-Loop
 
 Cases requiring human intervention are escalated rather than handled autonomously.
 
-Fail Safely
+### Fail Safely
 
 The system avoids inventing unsupported policies, refunds, discounts, inventory, or completed actions.
 
-Testability
+### Testability
 
 Business logic is tested independently of the Gemini API.
 
-Current Status
+---
 
-Component
+## Current Status
 
-Status
+| Component            | Status   |
+| -------------------- | -------- |
+| Gemini tool calling  | ✅       |
+| Policy grounding     | ✅       |
+| Order lookup         | ✅       |
+| Return eligibility   | ✅       |
+| Exchange eligibility | ✅       |
+| Human escalation     | ✅       |
+| Date handling        | ✅       |
+| API error handling   | ✅       |
+| Automated testing    | ✅       |
+| Business-logic tests | ✅ 14/14 |
 
-Gemini tool calling
+### Project Status
 
-✅
+**Functional AI Support Agent Prototype**
 
-Policy grounding
+---
 
-✅
+## Future Improvements
 
-Order lookup
+- Persistent escalation storage
+- Real customer-support ticket integration
+- Return creation workflow
+- Exchange creation workflow
+- Refund processing workflow
+- Database-backed order storage
+- FastAPI backend
+- Authentication
+- Conversation logging
+- Observability and metrics
+- Additional integration tests
+- Retry and backoff strategies for transient API failures
+- Web-based customer-support interface
 
-✅
+---
 
-Return eligibility
+## Tech Stack
 
-✅
+| Technology        | Purpose                                         |
+| ----------------- | ----------------------------------------------- |
+| Python 3.10       | Core application and business logic             |
+| Google Gemini API | Natural-language understanding and tool calling |
+| `google-genai`    | Gemini API integration                          |
+| `python-dotenv`   | Environment variable management                 |
+| pytest            | Automated testing                               |
+| JSON              | Order data storage                              |
+| Markdown          | Policy storage and documentation                |
 
-Exchange eligibility
+---
 
-✅
+## Repository
 
-Human escalation
-
-✅
-
-Date handling
-
-✅
-
-API error handling
-
-✅
-
-Automated testing
-
-✅
-
-Business-logic tests
-
-✅ 14/14
-
-Project Status
-
-Functional AI Support Agent Prototype
-
-Future Improvements
-
-Persistent escalation storage
-
-Real customer-support ticket integration
-
-Return creation workflow
-
-Exchange creation workflow
-
-Refund processing workflow
-
-Database-backed order storage
-
-FastAPI backend
-
-Authentication
-
-Conversation logging
-
-Observability and metrics
-
-Additional integration tests
-
-Retry and backoff strategies for transient API failures
-
-Web-based customer-support interface
-
-Tech Stack
-
-Technology
-
-Purpose
-
-Python 3.10
-
-Core application and business logic
-
-Google Gemini API
-
-Natural-language understanding and tool calling
-
-google-genai
-
-Gemini API integration
-
-python-dotenv
-
-Environment variable management
-
-pytest
-
-Automated testing
-
-JSON
-
-Order data storage
-
-Markdown
-
-Policy storage and documentation
-
-Repository
-
-GitHub:
+**GitHub:**  
 https://github.com/ritusagar225/trendly-support-agent
 
-License
+---
+
+## License
 
 This project was created as a demonstration of an AI-powered customer-support agent architecture using Gemini function calling and deterministic business logic.
