@@ -89,29 +89,31 @@ Customer:
 Can I return TR-4530?
 ```
 
-2. Gemini Understands the Intent
+### 2. Gemini Understands the Intent
 
 Gemini analyzes the request and determines what information or action is required.
-
+```text
 For a return request, the agent identifies that it needs to:
 
 Retrieve the order
 Check return eligibility
+```
 
-3. Gemini Selects the Appropriate Tool
+### 3. Gemini Selects the Appropriate Tool
 
 The agent uses function calling to select the required Python tool.
-
+```text
 get_order()
      ↓
 check_return_eligibility()
 
 The LLM is responsible for selecting the tool, but it does not make the final eligibility decision.
+```
 
-4. Python Tool Executes the Business Logic
+### 4. Python Tool Executes the Business Logic
 
 The selected tool receives the required arguments and applies Trendly's business rules.
-
+```text
 For example:
 
 check_return_eligibility(
@@ -134,11 +136,12 @@ Final sale?
 Cancelled?
      ↓
 Return decision
+```
 
-5. Tool Returns a Structured Result
+### 5. Tool Returns a Structured Result
 
 The Python function returns a structured response instead of free-form text
-
+```text
 {
   "eligible": true,
   "action": "return_eligible",
@@ -146,11 +149,12 @@ The Python function returns a structured response instead of free-form text
   "delivered_date": "2026-07-26",
   "days_since_delivery": 29
 }
+```
 
-6. Result Is Passed Back to Gemini
+### 6. Result Is Passed Back to Gemini
 
 The verified tool result is provided back to Gemini.
-
+```text
 Tool Result
      ↓
 Gemini
@@ -158,22 +162,23 @@ Gemini
 Customer-Friendly Response
 
 Gemini uses the result to construct the final response.
+```
 
-7. Customer Receives the Final Response
+### 7. Customer Receives the Final Response
 
-   Trendly Agent:
-
+Trendly Agent:
+```text
 Yes, your order TR-4530 is eligible for a return.
 
 It was delivered on July 26, 2026, which is within
 Trendly's 30-calendar-day return window.
-
+```
 Human Escalation Flow
 
 Some situations cannot be resolved automatically.
 
 For example, a lost parcel requires human support.
-
+```text
 Customer
    |
    v
@@ -199,8 +204,9 @@ Case ID returned
    |
    v
 Gemini informs the customer
-
+```
 Example escalation result:
+```text
 
 {
   "status": "escalated",
@@ -209,11 +215,11 @@ Example escalation result:
   "order_id": "TR-4526",
   "assigned_to": "human_support"
 }
-
+```
 Why Use Tools?
 
 The agent separates conversation from business logic.
-
+```text
 Gemini Handles
 Understanding customer requests
 Identifying intent
@@ -226,7 +232,7 @@ Return eligibility
 Exchange eligibility
 Date calculations
 Human escalation
-
+```
 This prevents the LLM from independently deciding important business outcomes.
 
                  Customer
