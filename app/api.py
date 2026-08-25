@@ -1,9 +1,13 @@
+import logging
 import os
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from .agent import run_agent
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 app = FastAPI(
@@ -50,6 +54,7 @@ def chat(request: ChatRequest):
         response = run_agent(message)
         return ChatResponse(response=response)
     except Exception as exc:
+        logger.error("Error in /chat endpoint processing request: %s", exc, exc_info=True)
         # Do not expose internal stack traces to the customer.
         raise HTTPException(
             status_code=500,

@@ -6,6 +6,7 @@ def escalate_to_human(
     reason: str,
     summary: str,
     order_id: str | None = None,
+    **kwargs,
 ) -> dict:
     """
     Create a human-support escalation record.

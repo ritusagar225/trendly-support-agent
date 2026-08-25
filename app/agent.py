@@ -1,9 +1,12 @@
+import logging
 import os
 from datetime import date
 
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+
+logger = logging.getLogger(__name__)
 
 from .tools.orders import get_order
 from .tools.policy import search_policy
@@ -388,23 +391,31 @@ def execute_tool(name: str, arguments: dict):
     """
 
     if name == "get_order":
-        return get_order(**arguments)
+        order_id = str(arguments.get("order_id", "")).strip()
+        return get_order(order_id=order_id)
 
     if name == "search_policy":
-        return search_policy(**arguments)
+        query = str(arguments.get("query", "")).strip()
+        return search_policy(query=query)
 
     if name == "check_return_eligibility":
-        arguments["current_date"] = date.today().isoformat()
-
+        order_id = str(arguments.get("order_id", "")).strip()
         return check_return_eligibility(
-            **arguments
+            order_id=order_id,
+            current_date=date.today().isoformat(),
         )
 
     if name == "check_exchange_eligibility":
-        arguments["current_date"] = date.today().isoformat()
-
+        order_id = str(arguments.get("order_id", "")).strip()
+        requested_size = str(arguments.get("requested_size", "")).strip()
+        exchange_count = int(arguments.get("exchange_count", 0))
+        available_sizes = arguments.get("available_sizes")
         return check_exchange_eligibility(
-            **arguments
+            order_id=order_id,
+            requested_size=requested_size,
+            current_date=date.today().isoformat(),
+            exchange_count=exchange_count,
+            available_sizes=available_sizes,
         )
 
     if name == "escalate_to_human":
@@ -455,6 +466,7 @@ def run_agent(user_message: str) -> str:
 
         except Exception as exc:
             error_text = str(exc)
+            logger.error("Gemini generate_content exception: %s", error_text, exc_info=True)
 
             # -----------------------------------------------
             # Gemini quota exhausted
@@ -518,10 +530,27 @@ def run_agent(user_message: str) -> str:
                 function_call.args or {}
             )
 
-            tool_result = execute_tool(
+            logger.info(
+                "Executing tool '%s' with argument keys: %s",
                 tool_name,
-                tool_arguments,
+                list(tool_arguments.keys()),
             )
+
+            try:
+                tool_result = execute_tool(
+                    tool_name,
+                    tool_arguments,
+                )
+            except Exception as exc:
+                logger.error(
+                    "Error executing tool '%s': %s",
+                    tool_name,
+                    exc,
+                    exc_info=True,
+                )
+                tool_result = {
+                    "error": f"Failed to execute tool {tool_name}: {str(exc)}"
+                }
 
             # ------------------------------------------------
             # Send tool result back to Gemini
