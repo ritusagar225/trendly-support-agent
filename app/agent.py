@@ -18,14 +18,23 @@ from .tools.escalation import escalate_to_human
 
 load_dotenv()
 
-API_KEY = os.getenv("GEMINI_API_KEY")
-
-if not API_KEY:
-    raise RuntimeError("GEMINI_API_KEY is not set.")
-
-client = genai.Client(api_key=API_KEY)
-
 MODEL_NAME = "gemini-3.6-flash"
+
+_client = None
+
+
+def get_client() -> genai.Client:
+    """
+    Lazily initialize and return the Gemini client so importing the module
+    does not immediately raise an exception if GEMINI_API_KEY is missing.
+    """
+    global _client
+    if _client is None:
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise RuntimeError("GEMINI_API_KEY is not set.")
+        _client = genai.Client(api_key=api_key)
+    return _client
 
 
 # ============================================================
@@ -429,6 +438,8 @@ def run_agent(user_message: str) -> str:
             ],
         )
     ]
+
+    client = get_client()
 
     while True:
 
